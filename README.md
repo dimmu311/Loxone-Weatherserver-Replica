@@ -2,7 +2,7 @@
 This is a replica of the Loxone Cloud Weather Service based on a free weather api
 
 As you know, you can by diffrent licences of Loxone Cloud Wether Server.
-during my work with the Loxone Miniserver Websocket Api i coincidentally found out how this cloud Service Works.
+During my work with the Loxone Miniserver Websocket Api I coincidentally found out how this cloud service works.
 
 ## Behind the Scenes
 It is a realy simple thing:
@@ -16,16 +16,16 @@ http://weather.loxone.com:6066/forecast/?user=loxone_<MINISERVER_MAC_ADDRESS>&co
 
 You don't need the enable anything in the Miniserver. The Miniserver makes all automaticly. The whole magic is in the Cloud Service.
 
-If you have enabled Cloud Weather Server in your Loxone Account (or your partner has done for you) the cloud will answer the request with a mix of xml and csv with all the availible weather data. If you not have enabled the cloud answer with a fault.
+If you have enabled Cloud Weather Server in your Loxone Account (or your partner has done for you) the cloud will answer the request with a mix of xml and csv with all the availible weather data. If you not have enabled the service, the cloud answer with a fault.
 
 ## How to enable free Weather Server
-So the first thing to do is to redirect the HTTP request to your own Server.
+So the first thing to do is to redirect the HTTP request to your own server.
 You have two options:
 
 - if you can edit DNS Records in your Internet Router then redirect ``http://weather.loxone.com`` to your own web server.
 - setup your own DNS Server, e.g. dnsmasq and redirect ``http://weather.loxone.com`` to your own web server. At this point you need tho change also the entry in Loxone Minserver Ethernet settings to your local DNS Server.
 
-The next Step is to setup a Webserver that taks the request from the Minserver, requests weather data from a diffrent wetter api, format this that it looks like the original Loxone Weather Server response and response this back to the Miniserver.
+The next Step is to setup a Webserver that taks the request from the Minserver, requests weather data from a diffrent wetter api, format this that it looks like the original Loxone Weather Server response and respond this back to the Miniserver.
 
 You can use this soruce code. As Weather Api it uses ``www.visualcrossing.com``. Go there and get a api key and put it in the ``config.php``.
 
