@@ -3,6 +3,7 @@ header('Content-Type: text/plain;charset=UTF-8');
 header('Connection: close');
 
 require "../config.php";
+require "../pictoCode.php";
 
 $user = $_GET['user'];
 $coord = str_getcsv($_GET['coord'], ',');
@@ -10,11 +11,12 @@ $asl = $_GET['asl'];
 $format = $_GET['format'];
 $newApi = $_GET['new_api'];
 
-$apiCall = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/$coord[1],$coord[0]?unitGroup=metric&key=$apiKey&include=hours%2Ccurrent";
+$apiCall = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/$coord[1],$coord[0]?unitGroup=metric&key=$apiKey&include=hours%2Ccurrent&lang=id";
+
+$weather = json_decode(file_get_contents($apiCall));
+if($debug) error_log(print_r($weather, true));
 
 //{{{ set the Header...
-$weather = json_decode(file_get_contents($apiCall));
-//var_dump($weather);
 $sunrise = date('H:i', $weather->days[0]->sunriseEpoch);
 $sunset = date('H:i', $weather->days[0]->sunsetEpoch);
 
@@ -39,7 +41,7 @@ $country = '';
 $forecast = array();
 foreach($weather->days as $day){
 	foreach($day->hours as $hour){
-		$localDate =date('d.m.Y', $hour->datetimeEpoch);
+		$localDate = date('d.m.Y', $hour->datetimeEpoch);
 		$weekday = date('D', $hour->datetimeEpoch);
 		$localTime = date('H', $hour->datetimeEpoch);
 		$temperature = $hour->temp!==null ? $hour->temp : 0;
@@ -55,10 +57,10 @@ foreach($weather->days as $day){
 		$snowFraction = $hour->snow!==null ? $hour->snow : 0; //todo
 		$seaLevelPressure = $hour->pressure!==null ? $hour->pressure : 0;
 		$relativeHumidity = $hour->humidity!==null ? $hour->humidity : 0; //check if this is relative
-		$cape = 0; //todo
-		$pictoCode = 1; //todo: build a map that converts the texts to icon id
+		$cape = 0; //todo this means how much energie is in a Thunderstorm
+		$pictoCode = getIconId($hour->conditions);
 		$radiation = $hour->solarradiation!==null ? $hour->solarradiation : 0;
-		$oneMoreValue = 0; //todo
+		$oneMoreValue = 0; //maybe this is particulate matter pollution. particulate matter pollution is available in config but not in the header.
 
 		$forecast[] = $localDate. ';	'.
 		$weekday. ';	'.
@@ -108,7 +110,8 @@ $valid_until->appendChild($valid_until_text);
 $station = $xml->createElement('station');
 $xml->appendChild($station);
 $station_text = PHP_EOL;
-$station_text .= "$id;$name;$coord[0]E;$coord[1]N;$height;$country;$timezone;$utcTimedifference;$sunrise;$sunset;". PHP_EOL;
+$station_text .= "$id;$name;$coord[0]E;$coord[1]N;$height;$country;$timezone;$utcTimedifference;$sunrise;$sunset;";
+$station_text .= PHP_EOL;
 foreach($forecast as $cast){
 	$station_text .= $cast;
 	$station_text .= PHP_EOL;
@@ -116,5 +119,5 @@ foreach($forecast as $cast){
 $station_text = $xml->createTextNode($station_text);
 $station->appendChild($station_text);
 
-echo str_replace('<?xml version="1.0"?>'.PHP_EOL, '', $xml->saveXML());
+echo str_replace('<?xml version="1.0"?>'. PHP_EOL, '', $xml->saveXML());
 ?>
